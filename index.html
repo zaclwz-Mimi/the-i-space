@@ -1,0 +1,2948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The I-space</title>
+  <style>
+    :root {
+      --bg: #f4eee4;
+      --bg-2: #efe7d9;
+      --surface: rgba(255, 251, 244, 0.94);
+      --surface-strong: #fffdf8;
+      --surface-soft: #faf3e8;
+      --ink: #23312f;
+      --muted: #5f6d69;
+      --line: #d9cdbd;
+      --line-strong: #cbbca7;
+      --brand: #165b56;
+      --brand-2: #12333f;
+      --brand-soft: rgba(22, 91, 86, 0.12);
+      --gold: #b98334;
+      --gold-soft: rgba(185, 131, 52, 0.14);
+      --success: #2d6a4f;
+      --warning: #9a5a18;
+      --danger: #9e3f43;
+      --shadow: 0 20px 60px rgba(24, 31, 40, 0.12);
+      --radius: 18px;
+      --radius-sm: 12px;
+      --title-font: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+      --body-font: "Aptos", "Segoe UI", Tahoma, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { color-scheme: light; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--body-font);
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 10%, rgba(22, 91, 86, 0.11), transparent 24%),
+        radial-gradient(circle at 88% 12%, rgba(185, 131, 52, 0.14), transparent 26%),
+        radial-gradient(circle at 80% 88%, rgba(22, 91, 86, 0.08), transparent 26%),
+        linear-gradient(180deg, var(--bg) 0%, #f8f2e8 48%, var(--bg-2) 100%);
+      background-attachment: fixed;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.22) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.22) 1px, transparent 1px);
+      background-size: 38px 38px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.2), transparent 64%);
+      opacity: 0.35;
+      z-index: 0;
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px 22px 36px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+
+    .panel,
+    .hero-card,
+    .guide-card,
+    .admin-card,
+    .modal {
+      background: var(--surface);
+      border: 1px solid rgba(201, 188, 170, 0.88);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero-card {
+      padding: 28px;
+      overflow: hidden;
+      position: relative;
+      background:
+        linear-gradient(145deg, rgba(22, 91, 86, 0.09), rgba(185, 131, 52, 0.09)),
+        rgba(255, 251, 244, 0.95);
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -60px -70px auto;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(22, 91, 86, 0.15), transparent 68%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(22, 91, 86, 0.1);
+      color: var(--brand);
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .eyebrow .dot,
+    .status-dot,
+    .mini-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 0 4px rgba(185, 131, 52, 0.12);
+      flex: 0 0 auto;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      font-family: var(--title-font);
+      letter-spacing: 0;
+      line-height: 1.06;
+    }
+
+    h1 {
+      font-size: clamp(2.4rem, 4vw, 4.2rem);
+      max-width: 11ch;
+      margin-top: 14px;
+    }
+
+    .hero-copy {
+      max-width: 64ch;
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 1.04rem;
+      line-height: 1.75;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn {
+      min-height: 44px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      transition: transform 0.16s ease, background 0.16s ease, color 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary {
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 12px 28px rgba(22, 91, 86, 0.22);
+    }
+    .btn-secondary {
+      background: rgba(22, 91, 86, 0.08);
+      color: var(--brand);
+      border: 1px solid rgba(22, 91, 86, 0.18);
+    }
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .hero-side {
+      padding: 22px;
+      background:
+        linear-gradient(180deg, rgba(18, 51, 63, 0.98), rgba(22, 91, 86, 0.94));
+      color: #f6efe5;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .hero-side h2 {
+      font-size: 1.16rem;
+      color: #fff7ea;
+    }
+
+    .hero-side p {
+      margin: 0;
+      color: rgba(246, 239, 229, 0.84);
+      line-height: 1.7;
+      font-size: 0.95rem;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .metric {
+      padding: 14px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.13);
+    }
+
+    .metric span {
+      display: block;
+      font-size: 0.84rem;
+      color: rgba(246, 239, 229, 0.76);
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 1.5rem;
+      color: #fff;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
+      gap: 18px;
+    }
+
+    .panel {
+      padding: 18px;
+    }
+
+    .panel-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .panel-head h2 {
+      font-size: 1.55rem;
+    }
+
+    .panel-note {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin: 0;
+      max-width: 64ch;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip,
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 11px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.87rem;
+    }
+
+    .badge {
+      background: rgba(22, 91, 86, 0.09);
+      color: var(--brand);
+      border-color: rgba(22, 91, 86, 0.14);
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    .status-chip[data-state="ok"] .status-dot { background: var(--success); box-shadow: 0 0 0 4px rgba(45, 106, 79, 0.12); }
+    .status-chip[data-state="warn"] .status-dot { background: var(--warning); box-shadow: 0 0 0 4px rgba(154, 90, 24, 0.12); }
+
+    .stepper {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .step-dot {
+      padding: 12px 10px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.35;
+      min-height: 66px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .step-dot strong {
+      display: block;
+      color: var(--ink);
+      font-size: 0.9rem;
+    }
+
+    .step-dot.active {
+      background: linear-gradient(180deg, rgba(22, 91, 86, 0.1), rgba(185, 131, 52, 0.08));
+      border-color: rgba(22, 91, 86, 0.24);
+      color: var(--ink);
+      box-shadow: 0 10px 25px rgba(22, 91, 86, 0.08);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field,
+    .question-card,
+    .support-card,
+    .plan-card,
+    .guide-section,
+    .admin-section,
+    .profile-card,
+    .table-card {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.72);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .field label,
+    .label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 0.94rem;
+    }
+
+    .help {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.5;
+    }
+
+    .control,
+    textarea,
+    select,
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="password"] {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      padding: 12px 13px;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    textarea { min-height: 112px; resize: vertical; }
+    .control:focus,
+    textarea:focus,
+    select:focus,
+    input:focus {
+      border-color: rgba(22, 91, 86, 0.5);
+      box-shadow: 0 0 0 4px rgba(22, 91, 86, 0.1);
+    }
+
+    .options {
+      display: grid;
+      gap: 8px;
+    }
+
+    .choice {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 12px 13px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.74);
+      cursor: pointer;
+    }
+
+    .choice input {
+      margin-top: 4px;
+      accent-color: var(--brand);
+      flex: 0 0 auto;
+    }
+
+    .choice strong {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 3px;
+      font-size: 0.95rem;
+    }
+
+    .choice span {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .choice.choice-inline {
+      align-items: center;
+    }
+
+    .chips-select {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip-check {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.8);
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .chip-check input {
+      accent-color: var(--brand);
+      margin: 0;
+    }
+
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr 72px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--brand);
+    }
+
+    .slider-value {
+      text-align: center;
+      font-weight: 700;
+      color: var(--brand);
+      background: rgba(22, 91, 86, 0.08);
+      border: 1px solid rgba(22, 91, 86, 0.14);
+      border-radius: 12px;
+      padding: 10px 8px;
+    }
+
+    .form-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .save-rail {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .save-note {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .step-view {
+      display: none;
+      animation: fadeUp 0.22s ease;
+    }
+
+    .step-view.active {
+      display: block;
+    }
+
+    .step-stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .section-title {
+      font-size: 1.2rem;
+      margin-bottom: 6px;
+    }
+
+    .section-note {
+      color: var(--muted);
+      line-height: 1.6;
+      margin: 0 0 12px;
+    }
+
+    .tiny {
+      font-size: 0.84rem;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--line), transparent);
+      margin: 6px 0;
+    }
+
+    .guide-card {
+      padding: 18px;
+      position: sticky;
+      top: 18px;
+      display: grid;
+      gap: 14px;
+      align-content: start;
+      min-height: 220px;
+    }
+
+    .guide-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .guide-header h2 {
+      font-size: 1.6rem;
+    }
+
+    .guide-copy {
+      color: var(--muted);
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    .guide-state {
+      display: grid;
+      gap: 12px;
+    }
+
+    .guidance-box {
+      border-radius: 16px;
+      padding: 14px;
+      background: linear-gradient(180deg, rgba(22, 91, 86, 0.08), rgba(185, 131, 52, 0.08));
+      border: 1px solid rgba(22, 91, 86, 0.12);
+    }
+
+    .guidance-box h3 {
+      font-size: 1.08rem;
+      margin-bottom: 8px;
+    }
+
+    .guide-section {
+      background: rgba(255, 255, 255, 0.82);
+    }
+
+    .guide-section h3 {
+      font-size: 1.04rem;
+      margin-bottom: 10px;
+    }
+
+    .guide-section ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--ink);
+      line-height: 1.65;
+    }
+
+    .guide-section li + li {
+      margin-top: 6px;
+    }
+
+    .callout {
+      border-radius: 14px;
+      padding: 12px 13px;
+      background: rgba(22, 91, 86, 0.08);
+      border: 1px solid rgba(22, 91, 86, 0.13);
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 0.92rem;
+    }
+
+    .email-box {
+      white-space: pre-wrap;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      color: var(--ink);
+      line-height: 1.65;
+      min-height: 180px;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 920px;
+      background: transparent;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 12px 12px;
+      border-bottom: 1px solid #e7ddd0;
+      vertical-align: top;
+      font-size: 0.92rem;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #f7f0e6;
+      color: var(--ink);
+      font-size: 0.82rem;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    tr:hover td {
+      background: rgba(22, 91, 86, 0.04);
+    }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .admin-metric {
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.76);
+      padding: 14px;
+    }
+
+    .admin-metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .admin-metric strong {
+      display: block;
+      margin-top: 8px;
+      font-size: 1.5rem;
+      color: var(--ink);
+    }
+
+    .admin-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .admin-section {
+      display: grid;
+      gap: 12px;
+    }
+
+    .filter-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .small-note {
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.55;
+    }
+
+    .profile-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 135px minmax(0, 1fr);
+      gap: 8px 10px;
+      align-items: start;
+      font-size: 0.92rem;
+    }
+
+    .kv div:nth-child(odd) {
+      color: var(--muted);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      background: rgba(18, 22, 25, 0.42);
+      padding: 22px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: min(520px, 100%);
+      background: var(--surface-strong);
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .modal-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: 8px;
+    }
+
+    .modal-card p {
+      color: var(--muted);
+      line-height: 1.6;
+      margin: 0 0 14px;
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.55;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1180px) {
+      .hero,
+      .layout,
+      .admin-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .guide-card {
+        position: static;
+      }
+    }
+
+    @media (max-width: 960px) {
+      .admin-grid,
+      .grid-2,
+      .grid-3,
+      .filter-row,
+      .stepper {
+        grid-template-columns: 1fr;
+      }
+
+      .shell {
+        padding: 16px;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff !important;
+        color: #000 !important;
+      }
+
+      body::before,
+      .hero,
+      .layout > .panel:first-child,
+      .admin-card,
+      .modal,
+      .no-print {
+        display: none !important;
+      }
+
+      .shell {
+        max-width: none;
+        padding: 0;
+      }
+
+      .layout {
+        display: block;
+      }
+
+      .guide-card {
+        position: static;
+        box-shadow: none;
+        border: 0;
+        padding: 0;
+      }
+
+      .guide-card,
+      .guide-section,
+      .guidance-box {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="hero-card">
+        <div class="eyebrow"><span class="dot"></span> Quiet coaching for shy introverts in business</div>
+        <h1>The I-space</h1>
+        <p class="hero-copy">
+          A warm, guided reflection experience that helps people clarify their starting point, choose a quiet growth path,
+          and receive an AI-assisted action plan they can save, revisit, and print as a PDF.
+        </p>
+        <div class="hero-actions no-print">
+          <button class="btn btn-primary" id="startBtn" type="button">Start my reflection</button>
+          <button class="btn btn-secondary" id="resumeBtn" type="button">Resume saved reflection</button>
+          <button class="btn btn-ghost" id="ownerBtnTop" type="button">Open admin view</button>
+        </div>
+        <div class="chips">
+          <div class="chip"><span class="mini-dot"></span> Magic-link return flow</div>
+          <div class="chip"><span class="mini-dot"></span> Weekly and monthly plans</div>
+          <div class="chip"><span class="mini-dot"></span> Firebase-ready data model</div>
+          <div class="chip"><span class="mini-dot"></span> One shared experience</div>
+        </div>
+      </div>
+      <aside class="hero-side">
+        <h2>Built around your PRD choices</h2>
+        <p>
+          The product now centers on one shared guided journey, magic-link email verification, AI-assisted plan language,
+          Gmail-based delivery, and a single-admin dashboard with manual CSV exports.
+        </p>
+        <div class="metric-grid">
+          <div class="metric">
+            <span>Product name</span>
+            <strong>The I-space</strong>
+          </div>
+          <div class="metric">
+            <span>Admin access</span>
+            <strong>1 account</strong>
+          </div>
+          <div class="metric">
+            <span>Plan output</span>
+            <strong>PDF</strong>
+          </div>
+          <div class="metric">
+            <span>Email service</span>
+            <strong>Gmail</strong>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="layout">
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Guided reflection flow</h2>
+            <p class="panel-note">
+              One step at a time, with autosave and a return link. The form intentionally feels more like a quiet journal
+              than a survey, while still collecting the structured data needed for the plan and admin dashboard.
+            </p>
+          </div>
+          <div class="status-chip" id="saveStatus" data-state="warn"><span class="status-dot"></span><span>Draft not yet saved</span></div>
+        </div>
+
+        <div class="stepper" id="stepper"></div>
+
+        <form id="reflectionForm" autocomplete="on">
+          <div class="step-view active" data-step="0">
+            <div class="step-stack">
+              <div class="question-card">
+                <h3 class="section-title">1. Start with your email</h3>
+                <p class="section-note">
+                  This is the access point for save-and-return, just like the PRD requested. In production this maps to a
+                  Firebase email-link flow. In this prototype, we simulate the magic link with a verification code.
+                </p>
+                <div class="grid-2">
+                  <div class="field">
+                    <label for="firstName">First name *</label>
+                    <input class="control" id="firstName" name="firstName" type="text" autocomplete="given-name" required>
+                  </div>
+                  <div class="field">
+                    <label for="email">Email *</label>
+                    <input class="control" id="email" name="email" type="email" autocomplete="email" required>
+                  </div>
+                  <div class="field">
+                    <label for="company">Organisation / Company</label>
+                    <input class="control" id="company" name="company" type="text" autocomplete="organization">
+                  </div>
+                  <div class="field">
+                    <label for="role">Role / Job title</label>
+                    <input class="control" id="role" name="role" type="text" autocomplete="organization-title">
+                  </div>
+                </div>
+                <div class="grid-2" style="margin-top:12px;">
+                  <div class="field">
+                    <label for="accessMode">Return flow</label>
+                    <select class="control" id="accessMode" name="accessMode">
+                      <option value="magic-link">Magic link email verification</option>
+                      <option value="code">One-time code fallback</option>
+                    </select>
+                    <div class="help">The backend can use Firebase Auth email link sign-in. This UI keeps the return path visible.</div>
+                  </div>
+                  <div class="field">
+                    <label for="magicLinkCode">Verification code</label>
+                    <input class="control" id="magicLinkCode" name="magicLinkCode" type="text" inputmode="numeric" placeholder="Enter code after requesting link">
+                    <div class="help">Use the code shown after you request your link in this prototype.</div>
+                  </div>
+                </div>
+                <div class="hero-actions" style="margin-top:14px;">
+                  <button class="btn btn-primary no-print" id="sendLinkBtn" type="button">Send magic link</button>
+                  <button class="btn btn-secondary no-print" id="verifyLinkBtn" type="button">Verify and continue</button>
+                </div>
+                <div class="callout" id="linkHelp">
+                  Once verified, the form unlocks autosave and the rest of the guided reflection. If the email already exists,
+                  the user can continue from the last saved section or start a new reflection.
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="field">
+                  <label for="ageRange">Age range *</label>
+                  <select class="control" id="ageRange" name="ageRange" required>
+                    <option value="">Choose one</option>
+                    <option>Below 25</option>
+                    <option>25-29</option>
+                    <option>30-34</option>
+                    <option>35-40</option>
+                    <option>Above 40</option>
+                    <option>Prefer not to say</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="userContext">Why are you completing this reflection today? *</label>
+                  <select class="control" id="userContext" name="userContext" required>
+                    <option value="">Choose one</option>
+                    <option>For my personal growth</option>
+                    <option>To grow my own business or career</option>
+                    <option>To support my team or company</option>
+                    <option>To support someone else</option>
+                    <option>I am still exploring</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="profileType">Which best describes you right now? *</label>
+                <select class="control" id="profileType" name="profileType" required>
+                  <option value="">Choose one</option>
+                  <option>Entrepreneur / Founder</option>
+                  <option>Corporate professional</option>
+                  <option>Manager / Team leader</option>
+                  <option>Sales or business development professional</option>
+                  <option>Freelancer / Consultant</option>
+                  <option>Student / Early-career professional</option>
+                  <option>Coach / Trainer / Educator</option>
+                  <option>Other</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-view" data-step="1">
+            <div class="step-stack">
+              <div class="question-card">
+                <h3 class="section-title">2. Your current blockage</h3>
+                <p class="section-note">Choose up to 3 that feel most true right now.</p>
+                <div class="chips-select" id="blockageOptions"></div>
+                <div class="help">These are saved as tags for future segmentation and admin reporting.</div>
+                <div class="field" style="margin-top:12px;">
+                  <label for="otherBlockage">Something else</label>
+                  <textarea class="control" id="otherBlockage" name="otherBlockage" placeholder="If none of the options fit, describe the blockage in your own words."></textarea>
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="field">
+                  <label for="intention">What is your current intention? *</label>
+                  <select class="control" id="intention" name="intention" required>
+                    <option value="">Choose one</option>
+                    <option>I want to meet new people</option>
+                    <option>I want to find potential customers or clients</option>
+                    <option>I want to build confidence</option>
+                    <option>I want to grow my personal brand</option>
+                    <option>I want to find mentors or guidance</option>
+                    <option>I want to build partnerships</option>
+                    <option>I want to support a cause or community</option>
+                    <option>I want to explore new opportunities</option>
+                    <option>I am not sure yet</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label for="networkingDirection">Which networking direction feels most relevant now?</label>
+                  <select class="control" id="networkingDirection" name="networkingDirection">
+                    <option value="">Choose one</option>
+                    <option>Business growth</option>
+                    <option>Personal brand building</option>
+                    <option>Networking with heart / contribution</option>
+                    <option>Finding my tribe or mastermind group</option>
+                    <option>Building authority</option>
+                    <option>I am still exploring</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="deeperPurpose">What would become possible if networking felt easier for you?</label>
+                <textarea class="control" id="deeperPurpose" name="deeperPurpose" placeholder="Write a few honest sentences. This can be short or spacious."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-view" data-step="2">
+            <div class="step-stack">
+              <div class="question-card">
+                <h3 class="section-title">3. Confidence, energy, and your story</h3>
+                <div class="grid-2">
+                  <div class="field">
+                    <label for="confidenceScore">How confident do you currently feel about networking?</label>
+                    <div class="range-row">
+                      <input id="confidenceScore" name="confidenceScore" type="range" min="1" max="5" step="1" value="3">
+                      <div class="slider-value" id="confidenceValue">3 / 5</div>
+                    </div>
+                    <div class="help">1 means not confident at all, 5 means very confident.</div>
+                  </div>
+                  <div class="field">
+                    <label for="comfortTalkingAboutSelf">How comfortable are you talking about yourself in business settings?</label>
+                    <div class="range-row">
+                      <input id="comfortTalkingAboutSelf" name="comfortTalkingAboutSelf" type="range" min="1" max="5" step="1" value="3">
+                      <div class="slider-value" id="comfortValue">3 / 5</div>
+                    </div>
+                    <div class="help">This helps shape the tone of the generated plan.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="field">
+                  <label>What usually drains your energy most?</label>
+                  <div class="chips-select" id="energyDrains"></div>
+                </div>
+                <div class="field">
+                  <label>What kind of connection feels easiest for you?</label>
+                  <div class="options" id="connectionStyleOptions"></div>
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="field">
+                  <label>What helps you recharge after social or business interactions?</label>
+                  <div class="chips-select" id="rechargeOptions"></div>
+                </div>
+                <div class="field">
+                  <label for="currentWork">What do you currently do?</label>
+                  <textarea class="control" id="currentWork" name="currentWork" placeholder="A short description of your work or role."></textarea>
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="field">
+                  <label for="audienceServed">Who do you usually help or serve?</label>
+                  <textarea class="control" id="audienceServed" name="audienceServed" placeholder="Who benefits from your work?"></textarea>
+                </div>
+                <div class="field">
+                  <label for="valueOffered">What value do you believe you can offer others?</label>
+                  <textarea class="control" id="valueOffered" name="valueOffered" placeholder="This can be rough, imperfect, and honest."></textarea>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="personalStory">What is one story, struggle, or experience that shaped who you are today?</label>
+                <textarea class="control" id="personalStory" name="personalStory" placeholder="Optional, but helpful for plan personalization."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-view" data-step="3">
+            <div class="step-stack">
+              <div class="question-card">
+                <h3 class="section-title">4. Support, topics, and plan type</h3>
+                <div class="grid-2">
+                  <div class="field">
+                    <label for="supportPreference">What kind of support would be useful for you?</label>
+                    <div class="options" id="supportOptions"></div>
+                  </div>
+                  <div class="field">
+                    <label for="emailFrequency">How often would you be comfortable receiving useful tips or updates?</label>
+                    <select class="control" id="emailFrequency" name="emailFrequency">
+                      <option value="">Choose one</option>
+                      <option>Weekly</option>
+                      <option>Monthly</option>
+                      <option>Only when something relevant is available</option>
+                      <option>I prefer not to receive updates</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="field" style="margin-top:12px;">
+                  <label>Which topics would you like to learn more about?</label>
+                  <div class="chips-select" id="topicOptions"></div>
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="plan-card">
+                  <h3 class="section-title">Which reflection plan would you like to receive? *</h3>
+                  <div class="options" id="planOptions"></div>
+                  <div class="help">The plan content adapts based on the selected blockage, intention, and energy level.</div>
+                </div>
+                <div class="plan-card">
+                  <h3 class="section-title">How should the plan feel?</h3>
+                  <div class="options">
+                    <label class="choice choice-inline">
+                      <input type="radio" name="planTone" value="gentle" checked>
+                      <div><strong>Gentle coach</strong><span>Warm, calm, and reflective.</span></div>
+                    </label>
+                    <label class="choice choice-inline">
+                      <input type="radio" name="planTone" value="practical">
+                      <div><strong>Practical guide</strong><span>Short, structured, and action-focused.</span></div>
+                    </label>
+                    <label class="choice choice-inline">
+                      <input type="radio" name="planTone" value="balanced">
+                      <div><strong>Balanced companion</strong><span>A blend of encouragement and direct next steps.</span></div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-view" data-step="4">
+            <div class="step-stack">
+              <div class="question-card">
+                <h3 class="section-title">5. Consent and launch</h3>
+                <div class="options">
+                  <label class="choice">
+                    <input type="checkbox" id="consentCheckbox" name="consentCheckbox">
+                    <div>
+                      <strong>I agree to receive my downloadable reflection plan by email. I also agree to receive relevant tips, updates, workshops, corporate training, coaching information, and occasional announcements.</strong>
+                      <span>I understand I can unsubscribe at any time. Consent timestamp, source, and version are stored for admin review.</span>
+                    </div>
+                  </label>
+                  <label class="choice">
+                    <input type="checkbox" id="reminderConsent" name="reminderConsent">
+                    <div>
+                      <strong>Yes, send me a save-and-return reminder if I do not finish right away.</strong>
+                      <span>This supports the magic-link return experience without feeling pushy.</span>
+                    </div>
+                  </label>
+                </div>
+                <div class="grid-2" style="margin-top:12px;">
+                  <div class="field">
+                    <label for="privacyAck">Privacy acknowledgement</label>
+                    <input class="control" id="privacyAck" name="privacyAck" type="text" value="I understand my reflection data is used to generate my plan and admin insights.">
+                    <div class="help">You can refine this copy before implementation if you want a more formal legal version.</div>
+                  </div>
+                  <div class="field">
+                    <label for="adminNote">Admin note</label>
+                    <input class="control" id="adminNote" name="adminNote" type="text" placeholder="Optional note for internal review">
+                  </div>
+                </div>
+              </div>
+
+              <div class="question-card">
+                <h3 class="section-title">Review and generate</h3>
+                <p class="section-note">
+                  The plan preview updates from your answers. Once you submit, the app stores the reflection, prepares the
+                  PDF-ready plan, and sends the acknowledgement email copy.
+                </p>
+                <div class="hero-actions">
+                  <button class="btn btn-secondary no-print" id="previewBtn" type="button">Refresh preview</button>
+                  <button class="btn btn-primary no-print" id="generateBtn" type="submit">Generate plan</button>
+                </div>
+                <div class="callout">
+                  The prototype uses local storage and a print-friendly plan view. The backend wiring points are ready for
+                  Firebase Auth, Firestore, Storage, and Cloud Functions.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-nav no-print">
+            <button class="btn btn-ghost" id="backBtn" type="button">Back</button>
+            <div class="chips">
+              <div class="chip"><span class="mini-dot"></span> Autosaves after each section</div>
+              <div class="chip"><span class="mini-dot"></span> Resume by verified email</div>
+            </div>
+            <button class="btn btn-primary" id="nextBtn" type="button">Next</button>
+          </div>
+        </form>
+
+        <p class="footer-note">
+          Required fields are marked with an asterisk. The app limits blockage selection to three categories and keeps the
+          copy calm, spacious, and judgment-free as requested in the PRD.
+        </p>
+      </div>
+
+      <aside class="guide-card" id="guideCard">
+        <div class="guide-header">
+          <div>
+            <div class="eyebrow"><span class="dot"></span> AI-assisted plan preview</div>
+            <h2 style="margin-top:12px;">Your quiet growth plan</h2>
+          </div>
+          <div class="status-chip" id="planStatus" data-state="warn"><span class="status-dot"></span><span>Not generated yet</span></div>
+        </div>
+
+        <p class="guide-copy">
+          Before submission, this panel shows what the generated plan will feel like. After submission, it becomes the
+          downloadable plan preview, acknowledgement email copy, and action guide for the selected weekly or monthly path.
+        </p>
+
+        <div class="guide-state" id="guideEmpty">
+          <div class="guidance-box">
+            <h3>What will be generated</h3>
+            <ul>
+              <li>Personalized recap of your intention and blockage</li>
+              <li>Weekly or monthly next steps based on the plan type</li>
+              <li>Recharge rhythm and confidence practice</li>
+              <li>Giver's gain or follow-up actions where relevant</li>
+              <li>Admin-ready tags and segmentation fields</li>
+            </ul>
+          </div>
+          <div class="guide-section">
+            <h3>Save-and-return support</h3>
+            <p class="guide-copy">
+              A verified email unlocks the return flow. If the same email is entered later, the app can resume the latest
+              incomplete reflection or reopen the completed plan.
+            </p>
+          </div>
+          <div class="guide-section">
+            <h3>Delivery note</h3>
+            <p class="guide-copy">
+              The user-facing PDF is created in a print-friendly layout for this prototype, and the production path is ready
+              to move into Firebase Storage + Cloud Functions.
+            </p>
+          </div>
+        </div>
+
+        <div id="guideOutput" class="guide-state" style="display:none;"></div>
+
+        <div class="guide-section no-print" id="emailPanel" style="display:none;">
+          <h3>Acknowledgement email</h3>
+          <div class="email-box" id="emailPreview"></div>
+          <div class="hero-actions" style="margin-top:12px;">
+            <button class="btn btn-secondary" id="copyEmailBtn" type="button">Copy email</button>
+            <button class="btn btn-ghost" id="printPlanBtn" type="button">Download PDF</button>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="admin-card" style="margin-top:18px;">
+      <div class="panel-head">
+        <div>
+          <h2>Private admin dashboard</h2>
+          <p class="panel-note">
+            Only one admin account is intended for MVP. This local build keeps the access gate visible and the reporting
+            structure aligned with the PRD: overview, lead list, segmentation, lead profile, and manual exports.
+          </p>
+        </div>
+        <div class="status-chip" id="adminStatus" data-state="warn"><span class="status-dot"></span><span>Locked</span></div>
+      </div>
+
+      <div class="hero-actions no-print">
+        <button class="btn btn-secondary" id="ownerBtnBottom" type="button">Unlock admin view</button>
+        <button class="btn btn-ghost" id="exportCsvBtn" type="button">Export CSV</button>
+        <button class="btn btn-ghost" id="copyJsonBtn" type="button">Copy JSON</button>
+        <button class="btn btn-danger" id="resetBtn" type="button">Reset demo data</button>
+      </div>
+
+      <div class="admin-grid" id="adminMetrics"></div>
+
+      <div class="admin-layout">
+        <div class="admin-section">
+          <div class="table-card">
+            <div class="panel-head" style="margin-bottom:10px;">
+              <div>
+                <h3 style="font-size:1.08rem;">Lead list</h3>
+                <p class="small-note">Columns match the PRD and are filterable by segment, plan type, and consent state.</p>
+              </div>
+            </div>
+            <div class="filter-row no-print">
+              <div class="field">
+                <label for="filterPlan">Plan type</label>
+                <select class="control" id="filterPlan">
+                  <option value="">All plans</option>
+                  <option>Weekly Action Plan</option>
+                  <option>Monthly Growth Plan</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="filterConsent">Consent</label>
+                <select class="control" id="filterConsent">
+                  <option value="">All states</option>
+                  <option value="yes">Consented</option>
+                  <option value="no">Not consented</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="filterBlockage">Blockage tag</label>
+                <select class="control" id="filterBlockage">
+                  <option value="">All blockages</option>
+                </select>
+              </div>
+            </div>
+            <div class="table-wrap" style="margin-top:12px;">
+              <table id="leadTable">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Age range</th>
+                    <th>User context</th>
+                    <th>Status</th>
+                    <th>Plan</th>
+                    <th>Top blockage</th>
+                    <th>Support interest</th>
+                    <th>Consent</th>
+                    <th>Submitted</th>
+                    <th>Updated</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="table-card">
+            <div class="panel-head" style="margin-bottom:10px;">
+              <div>
+                <h3 style="font-size:1.08rem;">Segmentation and export</h3>
+                <p class="small-note">The dashboard is ready for the PRD's workshop, corporate training, and coaching segments.</p>
+              </div>
+            </div>
+            <div class="grid-3">
+              <div class="profile-card">
+                <h3>Primary segments</h3>
+                <div class="small-note" id="segmentSummary"></div>
+              </div>
+              <div class="profile-card">
+                <h3>Consent snapshot</h3>
+                <div class="small-note" id="consentSummary"></div>
+              </div>
+              <div class="profile-card">
+                <h3>Support interests</h3>
+                <div class="small-note" id="supportSummary"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-section">
+          <div class="profile-card">
+            <h3>Lead profile</h3>
+            <div class="kv" id="leadProfile">
+              <div>Name</div><div>Select a lead row to inspect full details.</div>
+            </div>
+          </div>
+          <div class="profile-card">
+            <h3>Firebase bridge notes</h3>
+            <p class="small-note" id="firebaseNote">
+              This build uses local storage for the demo, but the data model, consent fields, and export logic are shaped to
+              plug into Firebase Auth, Firestore, Storage, Hosting, and Cloud Functions.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal" id="ownerModal" aria-hidden="true">
+    <div class="modal-card">
+      <h3>Unlock admin view</h3>
+      <p>
+        This prototype uses a local unlock phrase so we can test the single-admin dashboard. Production should use the
+        approved admin email and Firebase Auth.
+      </p>
+      <div class="grid-2">
+        <div class="field">
+          <label for="ownerEmail">Admin email</label>
+          <input class="control" id="ownerEmail" type="email" value="admin@theispace.com">
+        </div>
+        <div class="field">
+          <label for="ownerCode">Unlock phrase</label>
+          <input class="control" id="ownerCode" type="password" placeholder="Enter unlock phrase">
+        </div>
+      </div>
+      <div class="hero-actions" style="margin-top:14px;">
+        <button class="btn btn-primary" id="unlockOwner" type="button">Unlock</button>
+        <button class="btn btn-ghost" id="closeOwnerModal" type="button">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "ispace-submissions-v1";
+    const DRAFT_KEY = "ispace-draft-v1";
+    const OWNER_KEY = "ispace-owner-v1";
+    const VERIFICATION_KEY = "ispace-verification-v1";
+    const PLAN_TYPES = {
+      "Weekly Action Plan": {
+        label: "Weekly Action Plan",
+        helper: "A short 7-day path with one small networking action, one confidence practice, one conversation prompt, one follow-up action, and a recharge plan."
+      },
+      "Monthly Growth Plan": {
+        label: "Monthly Growth Plan",
+        helper: "A broader 30-day path with intention, purpose, a chosen networking pathway, weekly milestones, giver's gain, and a sustainability rhythm."
+      }
+    };
+
+    const BLOCKAGES = [
+      {
+        id: "blockage_starting_conversation",
+        label: "Starting the conversation",
+        copy: "I find it hard to approach people, introduce myself, or begin a conversation."
+      },
+      {
+        id: "blockage_knowing_what_to_say",
+        label: "Knowing what to say",
+        copy: "I'm not sure how to explain who I am, what I do, or why someone should remember me."
+      },
+      {
+        id: "blockage_judgement",
+        label: "Fear of being judged",
+        copy: "I worry about saying the wrong thing, being awkward, or not sounding confident enough."
+      },
+      {
+        id: "blockage_conversation_flow",
+        label: "Keeping the conversation going",
+        copy: "I struggle with small talk, awkward silence, or moving into deeper conversations."
+      },
+      {
+        id: "blockage_follow_up",
+        label: "Following up after meeting someone",
+        copy: "I don't know how to reconnect without sounding pushy, needy, or salesy."
+      },
+      {
+        id: "blockage_opportunities",
+        label: "Building business opportunities",
+        copy: "I meet people, but I'm unsure how to turn conversations into partnerships, clients, or opportunities."
+      },
+      {
+        id: "blockage_visibility",
+        label: "Personal branding and visibility",
+        copy: "I know I need to be more visible, but I don't want to feel fake, loud, or self-promotional."
+      },
+      {
+        id: "blockage_energy",
+        label: "Networking energy and burnout",
+        copy: "Networking drains me, and I need a way to connect without exhausting myself."
+      },
+      {
+        id: "blockage_vips",
+        label: "Meeting senior people or VIPs",
+        copy: "I feel nervous approaching leaders, decision-makers, or influential people."
+      },
+      {
+        id: "blockage_aligned_people",
+        label: "Finding the right people",
+        copy: "I'm not sure where to meet people who are aligned with my goals, values, or business direction."
+      },
+      {
+        id: "blockage_other",
+        label: "Something else",
+        copy: "Open text field."
+      }
+    ];
+
+    const INTENTIONS = [
+      "I want to meet new people",
+      "I want to find potential customers or clients",
+      "I want to build confidence",
+      "I want to grow my personal brand",
+      "I want to find mentors or guidance",
+      "I want to build partnerships",
+      "I want to support a cause or community",
+      "I want to explore new opportunities",
+      "I am not sure yet"
+    ];
+
+    const CONN_STYLES = [
+      "One-on-one coffee chat",
+      "Small group discussion",
+      "Online message or email",
+      "Structured workshop or event",
+      "Community group",
+      "Business meeting",
+      "I am not sure yet"
+    ];
+
+    const ENERGY_DRAINS = [
+      "Entering a room full of strangers",
+      "Starting conversations",
+      "Keeping conversations going",
+      "Talking about myself",
+      "Following up afterward",
+      "Being visible online",
+      "Being around too many people for too long",
+      "Other"
+    ];
+
+    const RECHARGE = [
+      "Quiet time alone",
+      "Journaling",
+      "Planning my next step",
+      "Talking to someone I trust",
+      "Taking a walk",
+      "Music or creative activity",
+      "Sleep or rest",
+      "Other"
+    ];
+
+    const SUPPORTS = [
+      {
+        label: "Upskill workshops",
+        detail: "Practical learning and confidence building."
+      },
+      {
+        label: "Corporate training",
+        detail: "Useful for team or company users."
+      },
+      {
+        label: "One-on-one coaching",
+        detail: "Deeper support for confidence and clarity."
+      },
+      {
+        label: "Group coaching",
+        detail: "Shared growth and structured accountability."
+      },
+      {
+        label: "Practical networking tips",
+        detail: "Short, usable prompts and scripts."
+      },
+      {
+        label: "Business confidence resources",
+        detail: "Support for voice, presence, and self-trust."
+      },
+      {
+        label: "Personal branding support",
+        detail: "Useful if visibility is the main concern."
+      },
+      {
+        label: "News and announcements",
+        detail: "General updates and occasional insights."
+      },
+      {
+        label: "I am not sure yet",
+        detail: "Leave the choice open for now."
+      }
+    ];
+
+    const TOPICS = [
+      "Starting conversations",
+      "Small talk",
+      "Follow-up messages",
+      "Building confidence",
+      "Personal branding",
+      "Networking for business growth",
+      "Meeting senior leaders or VIPs",
+      "Managing networking burnout",
+      "Online networking",
+      "Building partnerships",
+      "Corporate communication",
+      "Leadership presence"
+    ];
+
+    const PLAN_OPTIONS = [
+      {
+        label: "Weekly Action Plan",
+        copy: "For small, immediate steps you can practise over the next 7 days."
+      },
+      {
+        label: "Monthly Growth Plan",
+        copy: "For a broader 30-day direction to build confidence, clarity, and meaningful connections."
+      }
+    ];
+
+    const els = {
+      stepper: document.getElementById("stepper"),
+      reflectionForm: document.getElementById("reflectionForm"),
+      guideEmpty: document.getElementById("guideEmpty"),
+      guideOutput: document.getElementById("guideOutput"),
+      emailPanel: document.getElementById("emailPanel"),
+      emailPreview: document.getElementById("emailPreview"),
+      saveStatus: document.getElementById("saveStatus"),
+      planStatus: document.getElementById("planStatus"),
+      adminStatus: document.getElementById("adminStatus"),
+      ownerModal: document.getElementById("ownerModal"),
+      ownerEmail: document.getElementById("ownerEmail"),
+      ownerCode: document.getElementById("ownerCode"),
+      ownerBtnTop: document.getElementById("ownerBtnTop"),
+      ownerBtnBottom: document.getElementById("ownerBtnBottom"),
+      unlockOwner: document.getElementById("unlockOwner"),
+      closeOwnerModal: document.getElementById("closeOwnerModal"),
+      exportCsvBtn: document.getElementById("exportCsvBtn"),
+      copyJsonBtn: document.getElementById("copyJsonBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+      sendLinkBtn: document.getElementById("sendLinkBtn"),
+      verifyLinkBtn: document.getElementById("verifyLinkBtn"),
+      copyEmailBtn: document.getElementById("copyEmailBtn"),
+      printPlanBtn: document.getElementById("printPlanBtn"),
+      startBtn: document.getElementById("startBtn"),
+      resumeBtn: document.getElementById("resumeBtn"),
+      backBtn: document.getElementById("backBtn"),
+      nextBtn: document.getElementById("nextBtn"),
+      previewBtn: document.getElementById("previewBtn"),
+      generateBtn: document.getElementById("generateBtn"),
+      confidenceValue: document.getElementById("confidenceValue"),
+      comfortValue: document.getElementById("comfortValue"),
+      adminMetrics: document.getElementById("adminMetrics"),
+      leadProfile: document.getElementById("leadProfile"),
+      leadTableBody: document.querySelector("#leadTable tbody"),
+      segmentSummary: document.getElementById("segmentSummary"),
+      consentSummary: document.getElementById("consentSummary"),
+      supportSummary: document.getElementById("supportSummary"),
+      firebaseNote: document.getElementById("firebaseNote"),
+      filterPlan: document.getElementById("filterPlan"),
+      filterConsent: document.getElementById("filterConsent"),
+      filterBlockage: document.getElementById("filterBlockage"),
+      linkHelp: document.getElementById("linkHelp")
+    };
+
+    const state = {
+      step: 0,
+      verifiedEmail: "",
+      verificationCode: "",
+      verificationRequested: false,
+      ownerUnlocked: false,
+      submissions: [],
+      activeSubmissionId: null,
+      generatedGuide: null,
+      draft: {},
+      currentEdit: null
+    };
+
+    function blankDraft() {
+      return {
+        firstName: "",
+        email: "",
+        company: "",
+        role: "",
+        accessMode: "magic-link",
+        magicLinkCode: "",
+        ageRange: "",
+        userContext: "",
+        profileType: "",
+        selectedBlockages: [],
+        otherBlockage: "",
+        intention: "",
+        networkingDirection: "",
+        deeperPurpose: "",
+        confidenceScore: 3,
+        comfortTalkingAboutSelf: 3,
+        selectedEnergyDrains: [],
+        preferredConnectionStyle: "",
+        selectedRechargeMethods: [],
+        currentWork: "",
+        audienceServed: "",
+        valueOffered: "",
+        personalStory: "",
+        supportInterest: "",
+        emailFrequency: "",
+        learningTopics: [],
+        selectedPlanType: "Weekly Action Plan",
+        planTone: "gentle",
+        consentCheckbox: false,
+        reminderConsent: false,
+        privacyAck: "I understand my reflection data is used to generate my plan and admin insights.",
+        adminNote: ""
+      };
+    }
+
+    function loadJson(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (_) {
+        return fallback;
+      }
+    }
+
+    function saveJson(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function cloneDraft() {
+      return JSON.parse(JSON.stringify(state.draft));
+    }
+
+    function loadState() {
+      const stored = loadJson(STORAGE_KEY, []);
+      state.submissions = Array.isArray(stored) ? stored : [];
+      state.ownerUnlocked = localStorage.getItem(OWNER_KEY) === "yes";
+      const verification = loadJson(VERIFICATION_KEY, null);
+      if (verification && verification.email) {
+        state.verifiedEmail = verification.email;
+        state.verificationCode = verification.code || "";
+        state.verificationRequested = !!verification.requested;
+      }
+      const draft = loadJson(DRAFT_KEY, null);
+      state.draft = Object.assign(blankDraft(), draft || {});
+    }
+
+    function saveState() {
+      saveJson(STORAGE_KEY, state.submissions);
+      saveJson(DRAFT_KEY, state.draft);
+      saveJson(VERIFICATION_KEY, {
+        email: state.verifiedEmail,
+        code: state.verificationCode,
+        requested: state.verificationRequested
+      });
+    }
+
+    function stepLabels() {
+      return [
+        { title: "Start", subtitle: "Email and access" },
+        { title: "Blockage", subtitle: "Current pressure" },
+        { title: "Energy", subtitle: "Confidence and story" },
+        { title: "Support", subtitle: "Topics and plan" },
+        { title: "Consent", subtitle: "Review and launch" }
+      ];
+    }
+
+    function renderStepper() {
+      const labels = stepLabels();
+      els.stepper.innerHTML = labels.map((item, index) => `
+        <div class="step-dot ${index === state.step ? "active" : ""}">
+          <strong>${index + 1}. ${item.title}</strong>
+          <span>${item.subtitle}</span>
+        </div>
+      `).join("");
+      els.backBtn.disabled = state.step === 0;
+      els.nextBtn.textContent = state.step === 4 ? "Generate plan" : "Next";
+      document.querySelectorAll(".step-view").forEach(node => {
+        node.classList.toggle("active", Number(node.dataset.step) === state.step);
+      });
+    }
+
+    function updateSliderLabels() {
+      els.confidenceValue.textContent = `${document.getElementById("confidenceScore").value} / 5`;
+      els.comfortValue.textContent = `${document.getElementById("comfortTalkingAboutSelf").value} / 5`;
+    }
+
+    function renderChoiceSet(container, options, type) {
+      const root = document.getElementById(container);
+      root.innerHTML = options.map((item, index) => {
+        if (type === "radio") {
+          const checked = item === state.draft.selectedPlanType || item === state.draft.preferredConnectionStyle || item === state.draft.supportInterest || item === state.draft.networkingDirection;
+          return `
+            <label class="choice choice-inline">
+              <input type="radio" name="${container}" value="${item}" ${checked ? "checked" : ""}>
+              <div><strong>${escapeHTML(item)}</strong><span>${escapeHTML(item.copy || "")}</span></div>
+            </label>
+          `;
+        }
+        return `
+          <label class="chip-check">
+            <input type="checkbox" name="${container}" value="${escapeHTML(item)}">
+            <span>${escapeHTML(item)}</span>
+          </label>
+        `;
+      }).join("");
+    }
+
+    function renderOptionGroup(containerId, items, selectedValue, name) {
+      const root = document.getElementById(containerId);
+      root.innerHTML = items.map(item => {
+        const value = typeof item === "string" ? item : item.label;
+        const detail = typeof item === "string" ? "" : item.detail;
+        const checked = selectedValue === value;
+        return `
+          <label class="choice choice-inline">
+            <input type="${containerId === "planOptions" ? "radio" : "radio"}" name="${name}" value="${escapeHTML(value)}" ${checked ? "checked" : ""}>
+            <div><strong>${escapeHTML(value)}</strong><span>${escapeHTML(detail || (PLAN_TYPES[value] ? PLAN_TYPES[value].helper : ""))}</span></div>
+          </label>
+        `;
+      }).join("");
+    }
+
+    function renderChips() {
+      const blockageRoot = document.getElementById("blockageOptions");
+      blockageRoot.innerHTML = BLOCKAGES.map(item => `
+        <label class="chip-check">
+          <input type="checkbox" name="blockage" value="${escapeHTML(item.id)}" ${state.draft.selectedBlockages.includes(item.id) ? "checked" : ""}>
+          <span>${escapeHTML(item.label)}</span>
+        </label>
+      `).join("");
+
+      const energyRoot = document.getElementById("energyDrains");
+      energyRoot.innerHTML = ENERGY_DRAINS.map(item => `
+        <label class="chip-check">
+          <input type="checkbox" name="energyDrain" value="${escapeHTML(item)}" ${state.draft.selectedEnergyDrains.includes(item) ? "checked" : ""}>
+          <span>${escapeHTML(item)}</span>
+        </label>
+      `).join("");
+
+      const rechargeRoot = document.getElementById("rechargeOptions");
+      rechargeRoot.innerHTML = RECHARGE.map(item => `
+        <label class="chip-check">
+          <input type="checkbox" name="recharge" value="${escapeHTML(item)}" ${state.draft.selectedRechargeMethods.includes(item) ? "checked" : ""}>
+          <span>${escapeHTML(item)}</span>
+        </label>
+      `).join("");
+
+      const topicRoot = document.getElementById("topicOptions");
+      topicRoot.innerHTML = TOPICS.map(item => `
+        <label class="chip-check">
+          <input type="checkbox" name="topic" value="${escapeHTML(item)}" ${state.draft.learningTopics.includes(item) ? "checked" : ""}>
+          <span>${escapeHTML(item)}</span>
+        </label>
+      `).join("");
+    }
+
+    function renderOptions() {
+      const connectionRoot = document.getElementById("connectionStyleOptions");
+      connectionRoot.innerHTML = CONN_STYLES.map(item => `
+        <label class="choice choice-inline">
+          <input type="radio" name="preferredConnectionStyle" value="${escapeHTML(item)}" ${state.draft.preferredConnectionStyle === item ? "checked" : ""}>
+          <div><strong>${escapeHTML(item)}</strong><span>Choose the connection format that feels easiest.</span></div>
+        </label>
+      `).join("");
+
+      const supportRoot = document.getElementById("supportOptions");
+      supportRoot.innerHTML = SUPPORTS.map(item => `
+        <label class="choice choice-inline">
+          <input type="radio" name="supportInterest" value="${escapeHTML(item.label)}" ${state.draft.supportInterest === item.label ? "checked" : ""}>
+          <div><strong>${escapeHTML(item.label)}</strong><span>${escapeHTML(item.detail)}</span></div>
+        </label>
+      `).join("");
+
+      const planRoot = document.getElementById("planOptions");
+      planRoot.innerHTML = PLAN_OPTIONS.map(item => `
+        <label class="choice choice-inline">
+          <input type="radio" name="selectedPlanType" value="${escapeHTML(item.label)}" ${state.draft.selectedPlanType === item.label ? "checked" : ""}>
+          <div><strong>${escapeHTML(item.label)}</strong><span>${escapeHTML(item.copy)}</span></div>
+        </label>
+      `).join("");
+    }
+
+    function hydrateForm() {
+      const d = state.draft;
+      const set = (id, value) => {
+        const el = document.getElementById(id);
+        if (el && typeof value !== "undefined" && value !== null) el.value = value;
+      };
+      set("firstName", d.firstName);
+      set("email", d.email);
+      set("company", d.company);
+      set("role", d.role);
+      set("accessMode", d.accessMode);
+      set("magicLinkCode", d.magicLinkCode);
+      set("ageRange", d.ageRange);
+      set("userContext", d.userContext);
+      set("profileType", d.profileType);
+      set("otherBlockage", d.otherBlockage);
+      set("intention", d.intention);
+      set("networkingDirection", d.networkingDirection);
+      set("deeperPurpose", d.deeperPurpose);
+      set("confidenceScore", d.confidenceScore);
+      set("comfortTalkingAboutSelf", d.comfortTalkingAboutSelf);
+      set("currentWork", d.currentWork);
+      set("audienceServed", d.audienceServed);
+      set("valueOffered", d.valueOffered);
+      set("personalStory", d.personalStory);
+      set("emailFrequency", d.emailFrequency);
+      set("privacyAck", d.privacyAck);
+      set("adminNote", d.adminNote);
+      document.getElementById("reminderConsent").checked = !!d.reminderConsent;
+      document.getElementById("consentCheckbox").checked = !!d.consentCheckbox;
+      document.getElementById("confidenceScore").value = d.confidenceScore;
+      document.getElementById("comfortTalkingAboutSelf").value = d.comfortTalkingAboutSelf;
+      updateSliderLabels();
+    }
+
+    function pullSelections(name) {
+      return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(input => input.value);
+    }
+
+    function syncDraftFromForm() {
+      const d = state.draft;
+      d.firstName = document.getElementById("firstName").value.trim();
+      d.email = document.getElementById("email").value.trim();
+      d.company = document.getElementById("company").value.trim();
+      d.role = document.getElementById("role").value.trim();
+      d.accessMode = document.getElementById("accessMode").value;
+      d.magicLinkCode = document.getElementById("magicLinkCode").value.trim();
+      d.ageRange = document.getElementById("ageRange").value;
+      d.userContext = document.getElementById("userContext").value;
+      d.profileType = document.getElementById("profileType").value;
+      d.selectedBlockages = pullSelections("blockage").slice(0, 3);
+      d.otherBlockage = document.getElementById("otherBlockage").value.trim();
+      d.intention = document.getElementById("intention").value;
+      d.networkingDirection = document.getElementById("networkingDirection").value;
+      d.deeperPurpose = document.getElementById("deeperPurpose").value.trim();
+      d.confidenceScore = Number(document.getElementById("confidenceScore").value);
+      d.comfortTalkingAboutSelf = Number(document.getElementById("comfortTalkingAboutSelf").value);
+      d.selectedEnergyDrains = pullSelections("energyDrain");
+      d.preferredConnectionStyle = (document.querySelector('input[name="preferredConnectionStyle"]:checked') || {}).value || "";
+      d.selectedRechargeMethods = pullSelections("recharge");
+      d.currentWork = document.getElementById("currentWork").value.trim();
+      d.audienceServed = document.getElementById("audienceServed").value.trim();
+      d.valueOffered = document.getElementById("valueOffered").value.trim();
+      d.personalStory = document.getElementById("personalStory").value.trim();
+      d.supportInterest = (document.querySelector('input[name="supportInterest"]:checked') || {}).value || "";
+      d.emailFrequency = document.getElementById("emailFrequency").value;
+      d.learningTopics = pullSelections("topic");
+      d.selectedPlanType = (document.querySelector('input[name="selectedPlanType"]:checked') || {}).value || "Weekly Action Plan";
+      d.planTone = (document.querySelector('input[name="planTone"]:checked') || {}).value || "gentle";
+      d.consentCheckbox = document.getElementById("consentCheckbox").checked;
+      d.reminderConsent = document.getElementById("reminderConsent").checked;
+      d.privacyAck = document.getElementById("privacyAck").value.trim();
+      d.adminNote = document.getElementById("adminNote").value.trim();
+    }
+
+    function saveDraft(note = "Autosaved") {
+      syncDraftFromForm();
+      saveState();
+      els.saveStatus.dataset.state = "ok";
+      els.saveStatus.querySelector("span:last-child").textContent = note;
+    }
+
+    function restoreDraft(email) {
+      const match = state.submissions.find(item => item.email.toLowerCase() === email.toLowerCase());
+      if (!match) return false;
+      const draft = Object.assign(blankDraft(), match.draft || {});
+      state.draft = draft;
+      hydrateForm();
+      renderChips();
+      renderOptions();
+      renderDashboard();
+      state.step = match.status === "complete" ? 4 : Math.min(Number(match.lastStep || 0), 4);
+      renderStepper();
+      showGuide(match.guide || null);
+      els.linkHelp.textContent = match.status === "complete"
+        ? "We found a completed reflection. You can reopen the plan, download it again, or begin a new reflection."
+        : "We found a saved draft. Continue from the last saved section after verifying your email.";
+      return true;
+    }
+
+    function requestMagicLink() {
+      syncDraftFromForm();
+      if (!state.draft.email) {
+        alert("Please enter your email first.");
+        return;
+      }
+      const code = String(Math.floor(100000 + Math.random() * 900000));
+      state.verifiedEmail = state.draft.email;
+      state.verificationCode = code;
+      state.verificationRequested = true;
+      saveState();
+      els.linkHelp.textContent = `Magic link requested for ${state.draft.email}. Prototype code: ${code}. In production, this would be handled by Firebase Auth email link verification.`;
+      els.saveStatus.dataset.state = "warn";
+      els.saveStatus.querySelector("span:last-child").textContent = "Link requested";
+    }
+
+    function verifyMagicLink() {
+      syncDraftFromForm();
+      if (!state.draft.email) {
+        alert("Please enter your email first.");
+        return;
+      }
+      if (!state.verificationRequested) {
+        alert("Request the magic link first.");
+        return;
+      }
+      const code = document.getElementById("magicLinkCode").value.trim();
+      if (code !== state.verificationCode) {
+        alert("That code does not match the requested link.");
+        return;
+      }
+      state.verifiedEmail = state.draft.email;
+      saveState();
+      els.saveStatus.dataset.state = "ok";
+      els.saveStatus.querySelector("span:last-child").textContent = "Email verified";
+      if (restoreDraft(state.verifiedEmail)) {
+        state.step = Math.max(state.step, 1);
+      }
+      renderStepper();
+    }
+
+    function validateCurrentStep() {
+      syncDraftFromForm();
+      const d = state.draft;
+      const errs = [];
+      if (state.step === 0) {
+        if (!d.firstName) errs.push("First name");
+        if (!d.email) errs.push("Email");
+        if (!d.ageRange) errs.push("Age range");
+        if (!d.userContext) errs.push("User context");
+        if (!d.profileType) errs.push("Profile type");
+        if (!state.verifiedEmail || state.verifiedEmail.toLowerCase() !== d.email.toLowerCase()) {
+          errs.push("Verified email");
+        }
+      }
+      if (state.step === 1) {
+        if (d.selectedBlockages.length === 0) errs.push("At least one blockage");
+        if (d.selectedBlockages.length > 3) errs.push("No more than 3 blockages");
+        if (!d.intention) errs.push("Intention");
+      }
+      if (state.step === 2) {
+        if (!d.preferredConnectionStyle) errs.push("Connection style");
+      }
+      if (state.step === 3) {
+        if (!d.selectedPlanType) errs.push("Plan type");
+      }
+      if (state.step === 4) {
+        if (!d.consentCheckbox) errs.push("Consent");
+      }
+      if (errs.length) {
+        alert(`Please complete: ${errs.join(", ")}`);
+        return false;
+      }
+      return true;
+    }
+
+    function goNext() {
+      if (!validateCurrentStep()) return;
+      saveDraft();
+      if (state.step < 4) {
+        state.step += 1;
+        renderStepper();
+        saveDraft(`Saved section ${state.step + 1} of 5`);
+      } else {
+        generatePlan();
+      }
+    }
+
+    function goBack() {
+      if (state.step > 0) {
+        state.step -= 1;
+        saveDraft(`Returned to section ${state.step + 1} of 5`);
+        renderStepper();
+      }
+    }
+
+    function selectedBlockageObjects() {
+      return state.draft.selectedBlockages.map(id => BLOCKAGES.find(item => item.id === id)).filter(Boolean);
+    }
+
+    function primaryBlockageLabel() {
+      const list = selectedBlockageObjects();
+      return list.length ? list[0].label : "Not yet selected";
+    }
+
+    function topSupportLabel() {
+      return state.draft.supportInterest || "Not selected";
+    }
+
+    function summarizeText(text, max = 120) {
+      const clean = String(text || "").replace(/\s+/g, " ").trim();
+      if (!clean) return "Not provided";
+      return clean.length > max ? `${clean.slice(0, max - 1)}...` : clean;
+    }
+
+    function mapBlockageRecommendation(blockageId) {
+      const rules = {
+        blockage_starting_conversation: {
+          insight: "The easiest win is to reduce the pressure of the opening move.",
+          action: "Prepare one simple introduction and use it in one low-pressure setting.",
+          practice: "Try a calm greeting plus one follow-up question."
+        },
+        blockage_knowing_what_to_say: {
+          insight: "A short, clear explanation will help people remember you.",
+          action: "Write a 2-3 sentence version of who you are and who you help.",
+          practice: "Practice your value story out loud once."
+        },
+        blockage_judgement: {
+          insight: "The goal is connection, not performance.",
+          action: "Reframe networking as learning, not proving.",
+          practice: "Use one safe question and track a micro-win."
+        },
+        blockage_conversation_flow: {
+          insight: "Good conversation can be supported with a few transition questions.",
+          action: "Prepare two open-ended prompts you can reuse.",
+          practice: "Listen for one detail you can follow up on."
+        },
+        blockage_follow_up: {
+          insight: "A warm follow-up is a helpful bridge, not a burden.",
+          action: "Send one message within 48 hours.",
+          practice: "Mention something specific from the conversation."
+        },
+        blockage_opportunities: {
+          insight: "Opportunities grow when value is visible and mutual.",
+          action: "Identify one contact where you can give before asking.",
+          practice: "Draft a small partnership or client next step."
+        },
+        blockage_visibility: {
+          insight: "Visibility can be thoughtful and quiet.",
+          action: "Share one learning post or insight.",
+          practice: "Connect one story to one useful lesson."
+        },
+        blockage_energy: {
+          insight: "Protection of energy is part of the strategy.",
+          action: "Choose smaller interactions and schedule recovery.",
+          practice: "Set a limit on how many conversations you will have."
+        },
+        blockage_vips: {
+          insight: "Sincere curiosity works better than trying to impress.",
+          action: "Research before approaching and prepare one thoughtful question.",
+          practice: "Focus on the conversation, not the status."
+        },
+        blockage_aligned_people: {
+          insight: "The right places matter as much as the right words.",
+          action: "Choose one aligned community, event, or platform.",
+          practice: "Define the kind of people you want to meet."
+        },
+        blockage_other: {
+          insight: "Your own wording matters here, so we keep it flexible.",
+          action: "Use the next step that feels both realistic and gentle.",
+          practice: "Turn the problem into a small next action."
+        }
+      };
+      return rules[blockageId] || rules.blockage_other;
+    }
+
+    function generateGuide() {
+      const d = cloneDraft();
+      const blocks = selectedBlockageObjects();
+      const chosenBlockageIds = d.selectedBlockages.length ? d.selectedBlockages : ["blockage_other"];
+      const effectiveIds = chosenBlockageIds.length ? chosenBlockageIds : ["blockage_other"];
+      const recommendations = effectiveIds.map(id => mapBlockageRecommendation(id));
+      const tone = d.planTone || "gentle";
+      const planLabel = d.selectedPlanType || "Weekly Action Plan";
+      const weeks = [
+        "Clarify",
+        "Practise",
+        "Connect",
+        "Reflect"
+      ];
+
+      const summary = {
+        title: planLabel === "Weekly Action Plan" ? "Your Quiet Growth Focus This Week" : "Your Quiet Growth Path This Month",
+        intro: d.firstName
+          ? `Hi ${d.firstName}, this plan starts from where you are right now, not from where you think you should be.`
+          : "This plan starts from where you are right now, not from where you think you should be.",
+        primary: blocks[0] ? blocks[0].label : "your current starting point",
+        intention: d.intention || "a not-yet-fully-defined intention",
+        direction: d.networkingDirection || "an exploratory direction",
+        confidence: d.confidenceScore,
+        energy: d.selectedEnergyDrains.length ? d.selectedEnergyDrains[0] : "the pace that suits you",
+        support: d.supportInterest || "the most relevant support path",
+        tone
+      };
+
+      const weeklyActions = [
+        recommendations[0].action,
+        recommendations[0].practice,
+        d.preferredConnectionStyle ? `Use your easiest connection style: ${d.preferredConnectionStyle}.` : "Choose the connection style that feels least draining.",
+        d.selectedRechargeMethods.length ? `Recharge by: ${d.selectedRechargeMethods[0]}.` : "Protect your energy with a quiet recovery block.",
+        d.deeperPurpose ? `Keep this deeper purpose in view: ${summarizeText(d.deeperPurpose, 96)}.` : "Keep your deeper purpose in view."
+      ];
+
+      const monthPath = (blocks.length ? blocks : [BLOCKAGES.find(item => item.id === "blockage_other")]).slice(0, 3).map(item => mapBlockageRecommendation(item.id));
+      const monthlyMilestones = weeks.map((week, index) => ({
+        week,
+        action: index === 0
+          ? "Clarify the language you will use."
+          : index === 1
+            ? "Practise one safe conversation or follow-up."
+            : index === 2
+              ? "Connect with one aligned person or space."
+              : "Reflect, follow up, and decide what to keep."
+      }));
+
+      const guide = {
+        meta: summary,
+        blockageInsight: recommendations[0].insight,
+        recommendedAction: recommendations[0].action,
+        practicePrompt: recommendations[0].practice,
+        rechargePlan: d.selectedRechargeMethods.length
+          ? `After social time, restore yourself with ${d.selectedRechargeMethods[0].toLowerCase()}.`
+          : "After social time, choose one quiet recovery habit and protect it."
+      };
+
+      if (planLabel === "Weekly Action Plan") {
+        guide.sections = [
+          {
+            title: "1. Gentle acknowledgement",
+            body: summary.intro
+          },
+          {
+            title: "2. This week's focus",
+            list: [
+              `Main blockage: ${summary.primary}`,
+              `Intention: ${summary.intention}`,
+              `Direction: ${summary.direction}`,
+              `Confidence score: ${summary.confidence}/5`
+            ]
+          },
+          {
+            title: "3. Small actions for the week",
+            list: weeklyActions.slice(0, 5)
+          },
+          {
+            title: "4. Conversation practice",
+            body: `Try this: "${conversationStarter(d)}"`
+          },
+          {
+            title: "5. Follow-up practice",
+            body: `Send a warm follow-up message that references one useful detail and keeps the next step low pressure.`
+          },
+          {
+            title: "6. Recharge plan",
+            body: guide.rechargePlan
+          },
+          {
+            title: "7. End-of-week reflection",
+            list: [
+              "What progress did I make?",
+              "What felt difficult?",
+              "What could I try differently next week?",
+              "What did I learn about myself?"
+            ]
+          }
+        ];
+      } else {
+        guide.sections = [
+          {
+            title: "1. Gentle acknowledgement",
+            body: summary.intro
+          },
+          {
+            title: "2. Your intention and purpose",
+            body: d.deeperPurpose
+              ? summarizeText(d.deeperPurpose, 180)
+              : "Your deeper purpose will give this month's actions meaning and direction."
+          },
+          {
+            title: "3. Your current blockage",
+            list: blocks.map(item => item.label)
+          },
+          {
+            title: "4. Your quiet networking pathway",
+            body: monthlyPath[0].insight
+          },
+          {
+            title: "5. 30-day growth plan",
+            list: monthlyMilestones.map(item => `${item.week}: ${item.action}`)
+          },
+          {
+            title: "6. Giver's gain action",
+            body: "Offer one useful introduction, resource, insight, or small act of support before asking for anything back."
+          },
+          {
+            title: "7. Recharge rhythm",
+            body: guide.rechargePlan
+          },
+          {
+            title: "8. Reflection prompts",
+            list: [
+              "What progress did I make?",
+              "What could I do better?",
+              "Who did I connect with?",
+              "What helped me feel more confident?",
+              "What should I keep, start, improve, or stop?"
+            ]
+          },
+          {
+            title: "9. Recommended support",
+            body: summary.support
+          }
+        ];
+      }
+
+      return guide;
+    }
+
+    function conversationStarter(d) {
+      if (d.preferredConnectionStyle === "Online message or email") {
+        return "Hi, I noticed your work on [topic]. I would love to connect and learn a little more about what you are building.";
+      }
+      if (d.preferredConnectionStyle === "One-on-one coffee chat") {
+        return "Thanks for making time. I would love to hear how you got started and what has been most meaningful in your work.";
+      }
+      if (d.preferredConnectionStyle === "Business meeting") {
+        return "I appreciate the time today. A good place to start might be what is most important for you right now.";
+      }
+      return "What is one thing you are focused on right now, and what would make this conversation useful for you?";
+    }
+
+    function buildEmailPreview(submission, guide) {
+      const body = [
+        `Subject: Your Quiet Growth Reflection Plan is ready`,
+        "",
+        `Hi ${submission.firstName || "there"},`,
+        "",
+        `Your ${submission.selectedPlanType} is ready.`,
+        `We have saved your reflection and prepared a personalized guide based on your current starting point.`,
+        "",
+        `Plan focus: ${guide.meta.primary}`,
+        `Intention: ${guide.meta.intention}`,
+        `Top support interest: ${guide.meta.support}`,
+        "",
+        `You can download your plan, revisit your reflection later, or start a new one when you are ready.`,
+        "",
+        `This email was sent through the Gmail delivery path in the PRD.`
+      ];
+      if (submission.consentCheckbox) {
+        body.push("", "You opted in to receive relevant tips, workshops, coaching information, and occasional announcements.");
+      }
+      body.push("", "If you would like to stop future promotional emails, you can unsubscribe at any time.");
+      return body.join("\n");
+    }
+
+    function renderGuide(guide) {
+      state.generatedGuide = guide;
+      els.guideEmpty.style.display = "none";
+      els.guideOutput.style.display = "grid";
+      els.guideOutput.innerHTML = `
+        <div class="guidance-box">
+          <h3>${escapeHTML(guide.meta.title)}</h3>
+          <p class="guide-copy">${escapeHTML(guide.meta.intro)}</p>
+        </div>
+        ${guide.sections.map(section => `
+          <div class="guide-section">
+            <h3>${escapeHTML(section.title)}</h3>
+            ${section.body ? `<p class="guide-copy">${escapeHTML(section.body)}</p>` : ""}
+            ${section.list ? `<ul>${section.list.map(item => `<li>${escapeHTML(item)}</li>`).join("")}</ul>` : ""}
+          </div>
+        `).join("")}
+        <div class="callout">
+          Tone: ${escapeHTML(guide.meta.tone)}. Output style: gentle coach, practical guide, and reflective companion.
+        </div>
+      `;
+      els.planStatus.dataset.state = "ok";
+      els.planStatus.querySelector("span:last-child").textContent = `${guide.meta.title} ready`;
+      els.emailPanel.style.display = "block";
+      els.emailPreview.textContent = buildEmailPreview(state.draft, guide);
+    }
+
+    function showGuide(guide) {
+      if (!guide) {
+        els.guideEmpty.style.display = "grid";
+        els.guideOutput.style.display = "none";
+        els.emailPanel.style.display = "none";
+        els.planStatus.dataset.state = "warn";
+        els.planStatus.querySelector("span:last-child").textContent = "Not generated yet";
+        return;
+      }
+      renderGuide(guide);
+    }
+
+    function getSubmission() {
+      const d = cloneDraft();
+      const selectedBlockages = d.selectedBlockages.slice(0, 3);
+      const planType = d.selectedPlanType || "Weekly Action Plan";
+      const completionStatus = d.consentCheckbox && d.firstName && d.email && d.ageRange && d.userContext && d.profileType && selectedBlockages.length && d.intention ? "complete" : "incomplete";
+      return {
+        id: state.activeSubmissionId || `sub_${Date.now()}`,
+        firstName: d.firstName,
+        email: d.email,
+        company: d.company,
+        role: d.role,
+        ageRange: d.ageRange,
+        userContext: d.userContext,
+        profileType: d.profileType,
+        blockages: selectedBlockages,
+        otherBlockage: d.otherBlockage,
+        intention: d.intention,
+        networkingDirection: d.networkingDirection,
+        deeperPurpose: d.deeperPurpose,
+        confidenceScore: d.confidenceScore,
+        comfortTalkingAboutSelf: d.comfortTalkingAboutSelf,
+        selectedEnergyDrains: d.selectedEnergyDrains,
+        preferredConnectionStyle: d.preferredConnectionStyle,
+        selectedRechargeMethods: d.selectedRechargeMethods,
+        currentWork: d.currentWork,
+        audienceServed: d.audienceServed,
+        valueOffered: d.valueOffered,
+        personalStory: d.personalStory,
+        supportInterest: d.supportInterest,
+        emailFrequency: d.emailFrequency,
+        learningTopics: d.learningTopics,
+        selectedPlanType: planType,
+        consentCheckbox: d.consentCheckbox,
+        reminderConsent: d.reminderConsent,
+        privacyAck: d.privacyAck,
+        adminNote: d.adminNote,
+        status: completionStatus,
+        createdAt: state.currentEdit?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        submittedAt: d.consentCheckbox ? new Date().toISOString() : "",
+        consentVersion: d.consentCheckbox ? "v1" : "",
+        consentSource: d.consentCheckbox ? "The I-space web app" : "",
+        consentTimestamp: d.consentCheckbox ? new Date().toISOString() : "",
+        selectedBlockageLabels: selectedBlockages.map(id => (BLOCKAGES.find(item => item.id === id) || {}).label).filter(Boolean),
+        topBlockage: BLOCKAGES.find(item => item.id === selectedBlockages[0])?.label || "Not selected",
+        draft: d
+      };
+    }
+
+    function generatePlan() {
+      syncDraftFromForm();
+      if (!state.draft.consentCheckbox) {
+        alert("Consent is required before the plan can be generated.");
+        return;
+      }
+      if (!state.verifiedEmail || state.verifiedEmail.toLowerCase() !== state.draft.email.toLowerCase()) {
+        alert("Please verify the email first.");
+        return;
+      }
+      const guide = generateGuide();
+      const submission = getSubmission();
+      submission.guide = guide;
+      submission.downloadCount = 0;
+      const existingIndex = state.submissions.findIndex(item => item.email.toLowerCase() === submission.email.toLowerCase());
+      if (existingIndex >= 0) {
+        state.submissions[existingIndex] = Object.assign({}, state.submissions[existingIndex], submission);
+      } else {
+        state.submissions.unshift(submission);
+      }
+      state.activeSubmissionId = submission.id;
+      state.currentEdit = submission;
+      saveState();
+      renderGuide(guide);
+      updateDashboardNote();
+      renderDashboard();
+      els.saveStatus.dataset.state = "ok";
+      els.saveStatus.querySelector("span:last-child").textContent = "Reflection saved";
+      alert("Plan generated. The preview is ready and can be saved as PDF from the browser print dialog.");
+      state.step = 4;
+      renderStepper();
+    }
+
+    function updateDashboardNote() {
+      const total = state.submissions.length;
+      const complete = state.submissions.filter(item => item.status === "complete").length;
+      els.firebaseNote.textContent = `Source records: ${total}. Completed reflections: ${complete}. The structure is ready to map to Firestore collections, Cloud Functions, Gmail email delivery, and Storage-backed PDF output.`;
+    }
+
+    function filterSubmissions() {
+      const plan = els.filterPlan.value;
+      const consent = els.filterConsent.value;
+      const blockage = els.filterBlockage.value;
+      return state.submissions.filter(item => {
+        if (plan && item.selectedPlanType !== plan) return false;
+        if (consent === "yes" && !item.consentCheckbox) return false;
+        if (consent === "no" && item.consentCheckbox) return false;
+        if (blockage && !(item.blockages || []).includes(blockage)) return false;
+        return true;
+      });
+    }
+
+    function renderLeadProfile(item) {
+      if (!item) {
+        els.leadProfile.innerHTML = `<div>Name</div><div>Select a lead row to inspect full details.</div>`;
+        return;
+      }
+      const consent = item.consentCheckbox ? "Consented" : "Not consented";
+      els.leadProfile.innerHTML = `
+        <div>Name</div><div>${escapeHTML(item.firstName || "")}</div>
+        <div>Email</div><div>${escapeHTML(item.email || "")}</div>
+        <div>Age range</div><div>${escapeHTML(item.ageRange || "")}</div>
+        <div>User context</div><div>${escapeHTML(item.userContext || "")}</div>
+        <div>Plan type</div><div>${escapeHTML(item.selectedPlanType || "")}</div>
+        <div>Status</div><div>${escapeHTML(item.status || "")}</div>
+        <div>Top blockage</div><div>${escapeHTML(item.topBlockage || "")}</div>
+        <div>Support</div><div>${escapeHTML(item.supportInterest || "")}</div>
+        <div>Consent</div><div>${escapeHTML(consent)}</div>
+        <div>Consent time</div><div>${escapeHTML(item.consentTimestamp || "Not recorded")}</div>
+        <div>Admin note</div><div>${escapeHTML(item.adminNote || "None")}</div>
+        <div>Generated plan</div><div>${escapeHTML(item.guide ? "Available" : "Not yet generated")}</div>
+      `;
+    }
+
+    function renderDashboard() {
+      const items = filterSubmissions();
+      const all = state.submissions;
+      const total = all.length;
+      const complete = all.filter(item => item.status === "complete").length;
+      const incomplete = all.filter(item => item.status === "incomplete").length;
+      const weekly = all.filter(item => item.selectedPlanType === "Weekly Action Plan").length;
+      const monthly = all.filter(item => item.selectedPlanType === "Monthly Growth Plan").length;
+      const consented = all.filter(item => item.consentCheckbox).length;
+      const avgConfidence = total ? (all.reduce((sum, item) => sum + Number(item.confidenceScore || 0), 0) / total).toFixed(1) : "0.0";
+      const topBlockages = topTags(all.flatMap(item => item.blockages || []));
+      const topSupport = topTags(all.map(item => item.supportInterest).filter(Boolean));
+      const topContext = topTags(all.map(item => item.userContext).filter(Boolean));
+      const badgeMap = {
+        "Workshop Lead": all.filter(item => /workshop/i.test([item.supportInterest, ...(item.learningTopics || [])].join(" ")) || (item.blockages || []).some(id => ["blockage_starting_conversation", "blockage_knowing_what_to_say", "blockage_conversation_flow"].includes(id))).length,
+        "Corporate Training Lead": all.filter(item => /team|company|hr|l&d|manager|leader|corporate/i.test([item.userContext, item.profileType, item.supportInterest].join(" "))).length,
+        "Coaching Lead": all.filter(item => /coaching|fear|confidence|visibility|follow-up/i.test([item.supportInterest, ...(item.blockages || []).join(" "), item.deeperPurpose].join(" "))).length,
+        "Tips / Newsletter Lead": all.filter(item => /tips|announcements|news|monthly|weekly/i.test(item.emailFrequency || "")).length
+      };
+
+      els.adminMetrics.innerHTML = [
+        ["Submissions", total],
+        ["Complete", complete],
+        ["Incomplete", incomplete],
+        ["Avg confidence", avgConfidence],
+        ["Weekly plans", weekly],
+        ["Monthly plans", monthly],
+        ["Consent opt-ins", consented],
+        ["Resume-ready", all.filter(item => item.email && item.status !== "complete").length]
+      ].map(([label, value]) => `
+        <div class="admin-metric">
+          <span>${escapeHTML(label)}</span>
+          <strong>${escapeHTML(String(value))}</strong>
+        </div>
+      `).join("");
+
+      els.segmentSummary.innerHTML = `
+        <div>Workshop Lead: ${badgeMap["Workshop Lead"]}</div>
+        <div>Corporate Training Lead: ${badgeMap["Corporate Training Lead"]}</div>
+        <div>Coaching Lead: ${badgeMap["Coaching Lead"]}</div>
+        <div>Tips / Newsletter Lead: ${badgeMap["Tips / Newsletter Lead"]}</div>
+        <div class="divider"></div>
+        <div>Most common context: ${topContext[0] || "N/A"}</div>
+        <div>Most common blockage: ${topBlockages[0] || "N/A"}</div>
+      `;
+
+      els.consentSummary.innerHTML = `
+        <div>Consented users: ${consented}</div>
+        <div>Consent rate: ${total ? Math.round((consented / total) * 100) : 0}%</div>
+        <div>Reminder opt-ins: ${all.filter(item => item.reminderConsent).length}</div>
+        <div>Consent source: The I-space web app</div>
+      `;
+
+      els.supportSummary.innerHTML = `
+        <div>Top support: ${topSupport[0] || "N/A"}</div>
+        <div>Weekly interest: ${weekly}</div>
+        <div>Monthly interest: ${monthly}</div>
+        <div>Manual export only: Yes</div>
+      `;
+
+      els.filterBlockage.innerHTML = ["", ...BLOCKAGES.map(item => item.id)].map(value => {
+        if (!value) return `<option value="">All blockages</option>`;
+        const label = (BLOCKAGES.find(item => item.id === value) || {}).label || value;
+        return `<option value="${escapeHTML(value)}">${escapeHTML(label)}</option>`;
+      }).join("");
+
+      els.leadTableBody.innerHTML = items.length ? items.map((item, index) => `
+        <tr data-index="${index}">
+          <td><strong>${escapeHTML(item.firstName || "")}</strong></td>
+          <td>${escapeHTML(item.email || "")}</td>
+          <td>${escapeHTML(item.ageRange || "")}</td>
+          <td>${escapeHTML(item.userContext || "")}</td>
+          <td>${escapeHTML(item.status || "")}</td>
+          <td>${escapeHTML(item.selectedPlanType || "")}</td>
+          <td>${escapeHTML(item.topBlockage || "")}</td>
+          <td>${escapeHTML(item.supportInterest || "")}</td>
+          <td>${item.consentCheckbox ? "Yes" : "No"}</td>
+          <td>${escapeHTML(shortDate(item.submittedAt || item.createdAt))}</td>
+          <td>${escapeHTML(shortDate(item.updatedAt || item.createdAt))}</td>
+        </tr>
+      `).join("") : `<tr><td colspan="11">No submissions yet.</td></tr>`;
+
+      const selected = items[0] || null;
+      renderLeadProfile(selected);
+      updateDashboardNote();
+      if (state.ownerUnlocked) {
+        els.adminStatus.dataset.state = "ok";
+        els.adminStatus.querySelector("span:last-child").textContent = "Admin view unlocked";
+      }
+      if (!state.ownerUnlocked) {
+        els.adminStatus.dataset.state = "warn";
+        els.adminStatus.querySelector("span:last-child").textContent = "Locked";
+      }
+    }
+
+    function topTags(values) {
+      const counts = {};
+      values.filter(Boolean).forEach(value => {
+        counts[value] = (counts[value] || 0) + 1;
+      });
+      return Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([label]) => label);
+    }
+
+    function shortDate(value) {
+      if (!value) return "";
+      try {
+        return new Intl.DateTimeFormat("en", { month: "short", day: "2-digit", year: "numeric" }).format(new Date(value));
+      } catch (_) {
+        return value;
+      }
+    }
+
+    function exportCsv() {
+      if (!state.submissions.length) {
+        alert("No submissions to export yet.");
+        return;
+      }
+      const rows = state.submissions.map(item => ({
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+        firstName: item.firstName,
+        email: item.email,
+        company: item.company,
+        role: item.role,
+        ageRange: item.ageRange,
+        userContext: item.userContext,
+        profileType: item.profileType,
+        blockages: (item.blockages || []).join(" | "),
+        intention: item.intention,
+        networkingDirection: item.networkingDirection,
+        confidenceScore: item.confidenceScore,
+        selectedPlanType: item.selectedPlanType,
+        supportInterest: item.supportInterest,
+        consentCheckbox: item.consentCheckbox,
+        consentTimestamp: item.consentTimestamp,
+        consentSource: item.consentSource,
+        consentVersion: item.consentVersion,
+        reminderConsent: item.reminderConsent,
+        status: item.status,
+        topBlockage: item.topBlockage
+      }));
+      const headers = Object.keys(rows[0]);
+      const csv = [
+        headers.join(","),
+        ...rows.map(row => headers.map(key => JSON.stringify(row[key] ?? "")).join(","))
+      ].join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "the-i-space-submissions.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function copyJson() {
+      navigator.clipboard.writeText(JSON.stringify(state.submissions, null, 2)).then(() => {
+        alert("Submission JSON copied.");
+      }).catch(() => alert("Clipboard copy failed."));
+    }
+
+    function resetDemoData() {
+      if (!confirm("Reset all demo data?")) return;
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(DRAFT_KEY);
+      localStorage.removeItem(VERIFICATION_KEY);
+      localStorage.removeItem(OWNER_KEY);
+      state.step = 0;
+      state.verifiedEmail = "";
+      state.verificationCode = "";
+      state.verificationRequested = false;
+      state.ownerUnlocked = false;
+      state.submissions = [];
+      state.activeSubmissionId = null;
+      state.generatedGuide = null;
+      state.currentEdit = null;
+      state.draft = blankDraft();
+      hydrateForm();
+      renderChips();
+      renderOptions();
+      renderStepper();
+      showGuide(null);
+      renderDashboard();
+      alert("Demo data reset.");
+    }
+
+    function openOwnerModal() {
+      els.ownerModal.classList.add("open");
+      els.ownerModal.setAttribute("aria-hidden", "false");
+    }
+
+    function closeOwnerModal() {
+      els.ownerModal.classList.remove("open");
+      els.ownerModal.setAttribute("aria-hidden", "true");
+    }
+
+    function unlockOwner() {
+      const email = els.ownerEmail.value.trim().toLowerCase();
+      const code = els.ownerCode.value.trim();
+      if (email !== "admin@theispace.com" || code !== "ISPACE-ADMIN") {
+        alert("That admin email or unlock phrase is not correct.");
+        return;
+      }
+      state.ownerUnlocked = true;
+      localStorage.setItem(OWNER_KEY, "yes");
+      els.adminStatus.dataset.state = "ok";
+      els.adminStatus.querySelector("span:last-child").textContent = "Admin view unlocked";
+      closeOwnerModal();
+      renderDashboard();
+    }
+
+    function handlePlanClick() {
+      syncDraftFromForm();
+      renderGuide(generateGuide());
+      saveDraft("Preview refreshed");
+    }
+
+    function printPlan() {
+      if (!state.generatedGuide) {
+        alert("Generate the plan first.");
+        return;
+      }
+      const html = renderPrintablePlan(state.draft, state.generatedGuide);
+      const win = window.open("", "_blank", "noopener,noreferrer,width=980,height=1200");
+      if (!win) {
+        alert("The browser blocked the preview window. Please allow popups for this page.");
+        return;
+      }
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+      win.focus();
+      setTimeout(() => win.print(), 350);
+    }
+
+    function renderPrintablePlan(d, guide) {
+      return `<!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>${escapeHTML(d.firstName || "Plan")}</title>
+        <style>
+          body { font-family: Georgia, serif; margin: 0; color: #18211f; background: #fff; }
+          .page { max-width: 760px; margin: 0 auto; padding: 42px 48px 52px; }
+          h1, h2, h3 { font-family: Georgia, serif; line-height: 1.1; }
+          h1 { font-size: 30px; margin: 0 0 8px; }
+          h2 { font-size: 19px; margin: 22px 0 8px; }
+          h3 { font-size: 15px; margin: 18px 0 6px; }
+          p, li { font-size: 12.4px; line-height: 1.6; }
+          .meta { color: #4b5a56; font-size: 12px; line-height: 1.6; }
+          .box { border: 1px solid #d9d1c7; padding: 14px 16px; border-radius: 10px; margin: 14px 0; }
+          ul { margin: 8px 0 0 20px; }
+          .rule { height: 1px; background: #d9d1c7; margin: 16px 0; }
+        </style>
+      </head>
+      <body>
+        <div class="page">
+          <div class="meta">The I-space</div>
+          <h1>${escapeHTML(guide.meta.title)}</h1>
+          <p class="meta">${escapeHTML(guide.meta.intro)}</p>
+          <div class="box">
+            <h2>Summary</h2>
+            <p><strong>Name:</strong> ${escapeHTML(d.firstName || "")}</p>
+            <p><strong>Plan type:</strong> ${escapeHTML(d.selectedPlanType || "")}</p>
+            <p><strong>Main blockage:</strong> ${escapeHTML(guide.meta.primary)}</p>
+            <p><strong>Intention:</strong> ${escapeHTML(guide.meta.intention)}</p>
+            <p><strong>Support:</strong> ${escapeHTML(guide.meta.support)}</p>
+          </div>
+          ${guide.sections.map(section => `
+            <h2>${escapeHTML(section.title)}</h2>
+            ${section.body ? `<p>${escapeHTML(section.body)}</p>` : ""}
+            ${section.list ? `<ul>${section.list.map(item => `<li>${escapeHTML(item)}</li>`).join("")}</ul>` : ""}
+          `).join("")}
+        </div>
+      </body>
+      </html>`;
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function copyEmail() {
+      navigator.clipboard.writeText(els.emailPreview.textContent || "").then(() => {
+        alert("Email copied.");
+      }).catch(() => alert("Copy failed."));
+    }
+
+    function selectFirstLeadFromTable(event) {
+      const row = event.target.closest("tr");
+      if (!row || !row.dataset.index) return;
+      const items = filterSubmissions();
+      const item = items[Number(row.dataset.index)];
+      if (item) renderLeadProfile(item);
+    }
+
+    function init() {
+      loadState();
+      state.draft = Object.assign(blankDraft(), state.draft || {});
+      renderStepper();
+      renderChips();
+      renderOptions();
+      hydrateForm();
+      renderDashboard();
+      showGuide(null);
+      updateSliderLabels();
+      if (state.ownerUnlocked) {
+        els.adminStatus.dataset.state = "ok";
+        els.adminStatus.querySelector("span:last-child").textContent = "Admin view unlocked";
+      }
+
+      document.querySelectorAll(".step-view, .field, .question-card, .guide-card, .admin-card, .panel").forEach(node => {
+        node.addEventListener?.("change", () => saveDraft(), { passive: true });
+      });
+
+      document.querySelectorAll('input[name="planTone"]').forEach(input => {
+        input.addEventListener("change", () => saveDraft("Tone updated"));
+      });
+
+      document.querySelectorAll('input[type="range"]').forEach(input => {
+        input.addEventListener("input", () => {
+          updateSliderLabels();
+          saveDraft("Slider updated");
+        });
+      });
+
+      document.querySelectorAll('input[name="blockage"], input[name="energyDrain"], input[name="recharge"], input[name="topic"]').forEach(input => {
+        input.addEventListener("change", () => {
+          const selected = pullSelections(input.name);
+          if (input.name === "blockage" && selected.length > 3) {
+            input.checked = false;
+            alert("Please choose no more than 3 blockage categories.");
+            return;
+          }
+          saveDraft("Reflection saved");
+        });
+      });
+
+      document.querySelectorAll('input[name="preferredConnectionStyle"], input[name="supportInterest"], input[name="selectedPlanType"]').forEach(input => {
+        input.addEventListener("change", () => saveDraft("Selection saved"));
+      });
+
+      [
+        "firstName", "email", "company", "role", "accessMode", "magicLinkCode", "ageRange", "userContext",
+        "profileType", "otherBlockage", "intention", "networkingDirection", "deeperPurpose", "currentWork",
+        "audienceServed", "valueOffered", "personalStory", "emailFrequency", "privacyAck", "adminNote"
+      ].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener("input", () => saveDraft("Autosaved"));
+          el.addEventListener("change", () => saveDraft("Autosaved"));
+        }
+      });
+
+      els.startBtn.addEventListener("click", () => {
+        state.step = 0;
+        renderStepper();
+        document.getElementById("firstName").focus();
+      });
+
+      els.resumeBtn.addEventListener("click", () => {
+        const email = document.getElementById("email").value.trim() || state.draft.email;
+        if (!email) {
+          alert("Enter an email first, then we can try to resume a saved reflection.");
+          return;
+        }
+        if (!restoreDraft(email)) {
+          alert("No saved reflection was found for that email yet.");
+        }
+      });
+
+      els.sendLinkBtn.addEventListener("click", requestMagicLink);
+      els.verifyLinkBtn.addEventListener("click", verifyMagicLink);
+      els.backBtn.addEventListener("click", goBack);
+      els.nextBtn.addEventListener("click", goNext);
+      els.previewBtn.addEventListener("click", () => {
+        syncDraftFromForm();
+        renderGuide(generateGuide());
+        saveDraft("Preview refreshed");
+      });
+      els.generateBtn.addEventListener("click", event => {
+        event.preventDefault();
+        generatePlan();
+      });
+      els.copyEmailBtn.addEventListener("click", copyEmail);
+      els.printPlanBtn.addEventListener("click", printPlan);
+      els.ownerBtnTop.addEventListener("click", openOwnerModal);
+      els.ownerBtnBottom.addEventListener("click", openOwnerModal);
+      els.closeOwnerModal.addEventListener("click", closeOwnerModal);
+      els.ownerModal.addEventListener("click", event => {
+        if (event.target === els.ownerModal) closeOwnerModal();
+      });
+      els.unlockOwner.addEventListener("click", unlockOwner);
+      els.exportCsvBtn.addEventListener("click", exportCsv);
+      els.copyJsonBtn.addEventListener("click", copyJson);
+      els.resetBtn.addEventListener("click", resetDemoData);
+      els.filterPlan.addEventListener("change", renderDashboard);
+      els.filterConsent.addEventListener("change", renderDashboard);
+      els.filterBlockage.addEventListener("change", renderDashboard);
+      els.leadTableBody.addEventListener("click", selectFirstLeadFromTable);
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") closeOwnerModal();
+      });
+
+      saveDraft("Draft loaded");
+      renderDashboard();
+    }
+
+    init();
+  </script>
+</body>
+</html>
